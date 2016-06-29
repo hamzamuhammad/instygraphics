@@ -3,7 +3,6 @@
 ini_set('display_errors', 'On');
 error_reporting(E_ALL | E_STRICT);
 //mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-define("MYSQLI_DUPLICATE_KEY", 1062);
 
 require("/var/www/instygraphics.com/public_html/PHPMailer-master/PHPMailerAutoload.php");
 
@@ -66,26 +65,24 @@ function random_str($length)
     return $str;
 }
 
-function send_email($email_address, $message) { 
+function send_email($email_address, $subject, $message) { 
   date_default_timezone_set('Etc/UTC');
   $mail = new PHPMailer;
   $mail->isSMTP();
   $mail->SMTPDebug = 0;
   $mail->Debugoutput = 'html';
-  $mail->Host = 'smtp.gmail.com';
+  $mail->Host = 'smtp.sendgrid.net';
   $mail->Port = 587;
   $mail->SMTPSecure = 'tls';
   $mail->SMTPAuth = true;
-  $mail->Username = "instygraphics@gmail.com";
+  $mail->Username = "hamzam";
   $mail->Password = "dassak123";
   $mail->setFrom('admin@instygraphics.com', 'instygraphics');
   $mail->addReplyTo('noreply@instygraphics.com', 'Admin');
   $mail->addAddress($email_address, 'John Doe');
-  $mail->Subject = 'Account Validation';
-  $mail->Body = 'Go to www.instygraphics.com/validate.php and enter in '
-      . $verify_string . ' to verify your email address.';
-  $mail->AltBody = 'Go to www.instygraphics.com/validate.php and enter in '
-      . $verify_string . ' to verify your email address.';
+  $mail->Subject = $subject;
+  $mail->Body = $message;
+  $mail->AltBody = $message;
   $mail->addAttachment('logo.png');
   if (!$mail->send()) {
       echo "Mailer Error: " . $mail->ErrorInfo;
