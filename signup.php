@@ -1,10 +1,5 @@
 <?php //signup.php registers a new user into the database
 
-  	//DEBUG ONLY
-  	ini_set('display_errors', 'On');
-  	error_reporting(E_ALL | E_STRICT);
-  	//mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
 	include 'helper.php';
 	require_once 'login.php';
 	$connection = new mysqli($db_hostname, $db_username, $db_password, 
@@ -27,29 +22,30 @@
 	 	//have to show popup box telling user to confirm account via email!
 	 	//NOTE: BOTTOM IS TEMP!!!
 	 	if ($result) {
-		 	echo '<div class="alert alert-success">Successfully signed up!</div>';
-		 	echo '<script>setTimeout(function(){window.location.href=
-		 		"../../index.html"},2000);</script>';
+		 	echo '<div class="alert alert-success">Successfully signed up! 
+      Please check your email to validate your registration.</div>';
 		}
 		unlock_table($connection);
 	}
-	end:
 	$connection->close();	
 
 	function add_account($connection, $first_name, $last_name, $company_name, 
 		$phone_number, $email_address, $password) {
 		$salt1 = "zn7!";
 	 	$salt2 = "#db12";
-	 	$token = hash('ripemd128', "$salt2$password$salt1");	 	
+	 	$token = hash('ripemd128', "$salt2$password$salt1");
+    $verify_string = random_str(8);	 	
 	 	$query = "INSERT INTO users VALUES('$first_name', '$last_name', 
-	 		'$company_name', '$phone_number', '$email_address', '$token')";
+	 		'$company_name', '$phone_number', '$email_address', '$token', '$verify_string')";
 		$result = $connection->query($query);
 		if (!$result) {
 	 		echo '<div class="alert alert-danger">Email address already 
 	 			registered.</div>';
-	 		return FALSE;
+	 		return false;
 		}
-		return TRUE;
+    //send the mail here
+    send_confirmation_email($email_address, $verify_string);
+		return true;
 	}
 ?>
 
@@ -72,7 +68,7 @@
     <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="signin.css" rel="stylesheet">
+    <link href="signup.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -86,6 +82,60 @@
   </head>
 
   <body>
+
+       <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="navbar-left"><img src="logo.png" width="50" height="50"></div>
+          <a class="navbar-brand" href="index.html">instygraphics</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#signup">FAQ</a></li>  
+            <li class="active"><a href="#signup">Sign up</a><li>                  
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li>     
+                 <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
+                  <div class="form-group">
+                   <label class="sr-only" for="exampleInputEmail2">Email address</label>
+                   <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Email address" required>
+                 </div>
+                 <div class="form-group">
+                   <label class="sr-only" for="exampleInputPassword2">Password</label>
+                   <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password" required>
+                   <div id="left">
+                   <div class="help-block text-left"><a href="">Forgot password?</a></div>
+                   </div>
+                   <div class="help-block text-right"><a href="signup.php">Sign up</a></div>
+                 </div>
+                 <div class="form-group">
+                   <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                 </div>
+                 <div class="checkbox">
+                   <label>
+                    <input type="checkbox"> Remember me
+                   </label>
+                 </div>
+               </form>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
 
     <div class="container">
 
@@ -143,7 +193,18 @@
 
     </div> <!-- /container -->
 
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted">© 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+      </div>
+    </footer>
 
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
   </body>
