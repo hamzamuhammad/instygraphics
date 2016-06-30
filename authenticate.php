@@ -1,4 +1,4 @@
-<?php //validate.php confirms user registration
+<?php //authenticate.php logs the user in (and sets a cookie if possible)
 
 	include 'helper.php';
 	require_once 'login.php';
@@ -8,50 +8,69 @@
 		die($connection->connect_error);
 
 	if (isset($_POST['submit'])) {
-		$verify_string = sanitizeMySQL($connection, $_POST['verify_string']);
-		
+		$email_address = sanitizeMySQL($connection, $_POST['email_address']);
+		$user_password = sanitizeMySQL($connection, $_POST['user_password']);
+
 		lock_table($connection);
 
-		$result = check_verify_string($connection, $verify_string);
-		if ($result) {
-			echo '<div class="alert alert-success">Successfully validated your 
-				account! You can now sign in.</div>';
-		} 
-		unlock_table($connection);
+		$result = check_password($connection, $email_address, $user_password);
+		if ($result) { //successful login!
+			//have to check if checkbox was selected
+			if (isset($_POST['remember_me'])) {
+				setcookie('email_address', $email_address, 
+    				time() + 60 * 60 * 24 * 7, '/');
+			}
+			else if(isset($_COOKIE['email_address'])) {
+				setcookie('email_address', 'hamzamuhammad@utexas.edu', 
+					time() - 2592000);
+			}
+			//now, we start a session for this user: 
+			session_start();
+			$_SESSION['email_address'] = $email_address; 
+			welcome_msg();
+		}
+
 	}
 	$connection->close();
 
-	//get our cookie
-	$email_address = get_user_email_cookie();
-
-	function check_verify_string($connection, $verify_string) {
-		$query = "SELECT * FROM users WHERE verify_string = 
-			'$verify_string'";
+	function check_password($connection, $email_address, $user_password) {
+		$query = "SELECT * FROM users WHERE email_address='$email_address'";
 		$result = $connection->query($query);
-		if (!$result->num_rows) { //incorrect phrase
+		if (!$result->num_rows) { //account doesn't exist
 			$result->close();
 			unlock_table($connection);
-			echo '<div class="alert alert-danger">Invalid code.</div>';
+			error_msg();
 			return false;
 		}
 		$row = $result->fetch_array(MYSQLI_NUM);
 		$result->close();
-		$email_address = $row[4];
-		update_verify_string($connection, $email_address);
-		$subject = 'Account Validated!';
-    	$message = 'Congratulations! Your account has been validated. Now you
-    		can sign in.';
-    	send_email($email_address, $subject, $message);
+		$stored_password = $row[5];
+		$token = generate_password($user_password);
+		if ($token !== $stored_password) { //password is wrong
+			unlock_table($connection);
+			error_msg();
+			return false;
+		}
 		return true;
 	}
 
-	function update_verify_string($connection, $email_address) {
-		$query = "UPDATE users SET verify_string = '0' WHERE email_address =
-			'$email_address'";
-		$result = $connection->query($query);
-		if (!$result) //SHOULDN'T GET HERE
-			die($connection->error);
+	function error_msg() {
+		echo '<div class="alert alert-danger">Invalid account. 
+			<a href="recover.php">Forgot password?</a> Not registered? 
+			<a href="signup.php">Sign up!</a></div>';
 	}
+
+	function welcome_msg() {
+		echo '<div class="alert alert-success">Successfully signed in!</div>';
+		echo '<div class="alert alert-info" role="alert">
+        	<strong>Heads up! </strong>The admin is working on getting an SSL 
+        	certificate.</div>';
+        echo '<form action = "console.php" form class="form-signin" role="form">
+        	<div class="form-group">
+        	<button class="btn btn-lg btn-primary btn-block" type="submit" 
+        	name="submit">Console</button></div></form>';
+	}
+
 
 ?>
 
@@ -65,7 +84,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Validate</title>
+    <title>Sign up</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
@@ -108,36 +127,8 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
             <li><a href="#signup">FAQ</a></li>  
-            <li class="active"><a href="#signup">Sign up</a><li>                  
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li>     
-                   <form class="form" role="form" method="POST" action="authenticate.php" accept-charset="UTF-8" id="login-nav">
-                    <div class="form-group">
-                     <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                     <input type="email" class="form-control" id="emailAddress" placeholder="Email address" name="email_address" value="<?php if ($email_address !== "") echo $email_address; ?>" required>
-                   </div>
-                   <div class="form-group">
-                     <label class="sr-only" for="exampleInputPassword2">Password</label>
-                     <input type="password" class="form-control" id="userPassword" placeholder="Password" name="user_password" required>
-                     <div id="left">
-                       <div class="help-block text-left"><a href="recover.php">Forgot password?</a></div>
-                     </div>
-                     <div class="help-block text-right"><a href="signup.php">Sign up</a></div>
-                   </div>
-                   <div class="form-group">
-                     <button type="submit" class="btn btn-primary btn-block" name="submit">Sign in</button>
-                   </div>
-                   <div class="checkbox">
-                     <label>
-                      <input type="checkbox" name="remember_me" <?php if ($email_address !== "") echo 'checked'; ?> > Remember me
-                    </label>
-                  </div>
-                </form>
-              </li>
-            </ul>
-          </li>
+            <li class="active"><a href="#">Console</a></li>
+            <li><a href="logout.php">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -145,16 +136,6 @@
 
     <div class="container">
 
-	<form action = "validate.php" method="POST" form class="form-signin" role="form">
-        <h2 class="form-signin-heading">Please enter in code</h2>
-        <label for="inputText" class="sr-only">Enter Validation Code</label>
-        <div class="form-group">
-        	<input type="text" id="inputText" class="form-control" placeholder="Validation Code" name="verify_string" required autofocus>        
-        </div>
-        <div class="form-group">
-        	<button class="btn btn-lg btn-primary btn-block" type="submit" name="submit">Validate</button>
-    	</div>
-    </form>
 
     </div> <!-- /container -->
 

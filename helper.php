@@ -88,4 +88,18 @@ function send_email($email_address, $subject, $message) {
       echo "Mailer Error: " . $mail->ErrorInfo;
   }
 } 
+
+function generate_password($password) {
+  $salt1 = "zn7!";
+  $salt2 = "#db12";
+  $token = hash('ripemd128', "$salt2$password$salt1");
+  return $token;
+}
+
+function get_user_email_cookie() {
+  $email_address = "";
+  if (isset($_COOKIE['email_address']))
+    $email_address = $_COOKIE['email_address'];
+  return $email_address;
+}
 ?>

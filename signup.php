@@ -7,18 +7,19 @@
 	if ($connection->connect_error)
 		die($connection->connect_error);
 
+  $email_address = "";
 	if (isset($_POST['submit'])) {		
 		$first_name = sanitizeMySQL($connection, $_POST['first_name']);
 	  $last_name = sanitizeMySQL($connection, $_POST['last_name']);
 	  $company_name = sanitizeMySQL($connection, $_POST['company_name']);
 	  $phone_number = sanitizeMySQL($connection, $_POST['phone_number']);
 	  $email_address = sanitizeMySQL($connection, $_POST['email_address']);
-	  $password = sanitizeMySQL($connection, $_POST['password']);
+	  $user_password = sanitizeMySQL($connection, $_POST['user_password']);
 
     lock_table($connection);
 
 	 	$result = add_account($connection, $first_name, $last_name, $company_name, 
-	 		$phone_number, $email_address, $password);
+	 		$phone_number, $email_address, $user_password);
 	 	//have to show popup box telling user to confirm account via email!
 	 	//NOTE: BOTTOM IS TEMP!!!
 	 	if ($result) {
@@ -29,11 +30,13 @@
 	}
 	$connection->close();	
 
+  //get our cookie
+  $old_email_address = $email_address;
+  $email_address = get_user_email_cookie();
+
 	function add_account($connection, $first_name, $last_name, $company_name, 
-		$phone_number, $email_address, $password) {
-		$salt1 = "zn7!";
-	 	$salt2 = "#db12";
-	 	$token = hash('ripemd128', "$salt2$password$salt1");
+		$phone_number, $email_address, $user_password) {
+		$token = generate_password($user_password);
     $verify_string = random_str(8);	 	
 	 	$query = "INSERT INTO users VALUES('$first_name', '$last_name', 
 	 		'$company_name', '$phone_number', '$email_address', '$token', 
@@ -98,7 +101,7 @@
             <span class="icon-bar"></span>
           </button>
           <div class="navbar-left"><img src="logo.png" width="50" height="50"></div>
-          <a class="navbar-brand" href="index.html">instygraphics</a>
+          <a class="navbar-brand" href="index.php">instygraphics</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -108,34 +111,34 @@
             <li><a href="#signup">FAQ</a></li>  
             <li class="active"><a href="#signup">Sign up</a><li>                  
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li>     
-                 <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
-                  <div class="form-group">
-                   <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                   <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Email address" required>
-                 </div>
-                 <div class="form-group">
-                   <label class="sr-only" for="exampleInputPassword2">Password</label>
-                   <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password" required>
-                   <div id="left">
-                   <div class="help-block text-left"><a href="">Forgot password?</a></div>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li>     
+                   <form class="form" role="form" method="POST" action="authenticate.php" accept-charset="UTF-8" id="login-nav">
+                    <div class="form-group">
+                     <label class="sr-only" for="exampleInputEmail2">Email address</label>
+                     <input type="email" class="form-control" id="emailAddress" placeholder="Email address" name="email_address" value="<?php if ($email_address !== "") echo $email_address; ?>" required>
                    </div>
-                   <div class="help-block text-right"><a href="signup.php">Sign up</a></div>
-                 </div>
-                 <div class="form-group">
-                   <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-                 </div>
-                 <div class="checkbox">
-                   <label>
-                    <input type="checkbox"> Remember me
-                   </label>
-                 </div>
-               </form>
-                </li>
-              </ul>
-            </li>
+                   <div class="form-group">
+                     <label class="sr-only" for="exampleInputPassword2">Password</label>
+                     <input type="password" class="form-control" id="userPassword" placeholder="Password" name="user_password" required>
+                     <div id="left">
+                       <div class="help-block text-left"><a href="recover.php">Forgot password?</a></div>
+                     </div>
+                     <div class="help-block text-right"><a href="signup.php">Sign up</a></div>
+                   </div>
+                   <div class="form-group">
+                     <button type="submit" class="btn btn-primary btn-block" name="submit">Sign in</button>
+                   </div>
+                   <div class="checkbox">
+                     <label>
+                      <input type="checkbox" name="remember_me" <?php if ($email_address !== "") echo 'checked'; ?> > Remember me
+                    </label>
+                  </div>
+                </form>
+              </li>
+            </ul>
+          </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -179,13 +182,13 @@
     <label class="control-label col-sm-2" for="email">Email</label>
     <div class="col-sm-10">
       <input type="email" class="form-control" id="emailAddress" name="email_address" placeholder="Enter email address" required
-      value="<?php if (isset($_POST['submit'])) echo $email_address;?>">
+      value="<?php if (isset($_POST['submit'])) echo $old_email_address;?>">
     </div>
   </div>
   <div class="form-group">
     <label class="control-label col-sm-2" for="pwd">Password</label>
     <div class="col-sm-10"> 
-      <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+      <input type="password" class="form-control" id="password" name="user_password" placeholder="Enter password" required>
     </div>
   </div>
   <div class="form-group"> 
@@ -199,7 +202,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p class="text-muted">© 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+        <p class="text-muted">&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
       </div>
     </footer>
 

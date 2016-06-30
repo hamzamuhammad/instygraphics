@@ -1,4 +1,13 @@
-<!DOCTYPE html>
+<?php
+  // //to delete
+  setcookie('email_address', 'hamzamuhammad@utexas.edu', time() - 2592000);
+
+  // //to set
+
+
+  include 'helper.php';
+  $email_address = get_user_email_cookie();
+?>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -44,7 +53,7 @@
             <span class="icon-bar"></span>
           </button>
           <div class="navbar-left"><img src="logo.png" width="50" height="50"></div>
-          <a class="navbar-brand" href="index.html">instygraphics</a>
+          <a class="navbar-brand" href="index.php">instygraphics</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -60,7 +69,7 @@
                    <form class="form" role="form" method="POST" action="authenticate.php" accept-charset="UTF-8" id="login-nav">
                     <div class="form-group">
                      <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                     <input type="email" class="form-control" id="emailAddress" placeholder="Email address" name="email_address" required>
+                     <input type="email" class="form-control" id="emailAddress" placeholder="Email address" name="email_address" value="<?php if ($email_address !== "") echo $email_address; ?>" required>
                    </div>
                    <div class="form-group">
                      <label class="sr-only" for="exampleInputPassword2">Password</label>
@@ -75,7 +84,7 @@
                    </div>
                    <div class="checkbox">
                      <label>
-                      <input type="checkbox"> Remember me
+                      <input type="checkbox" name="remember_me" <?php if ($email_address !== "") echo 'checked'; ?> > Remember me
                     </label>
                   </div>
                 </form>
@@ -192,7 +201,7 @@
 
     <footer class="footer">
       <div class="container">
-        <p class="text-muted">© 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+        <p class="text-muted">&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
       </div>
     </footer>
 
