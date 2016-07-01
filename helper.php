@@ -25,7 +25,7 @@ function mysql_entities_fix_string($connection, $string) {
 
 function mysql_fix_string($connection, $string) {
  if (get_magic_quotes_gpc()) $string = stripslashes($string);
- return $connection->real_escape_string($string);
+    return $connection->real_escape_string($string);
 }
 
 function lock_table($connection) {
@@ -56,13 +56,13 @@ function unlock_table($connection) {
  */
 function random_str($length)
 {
-    $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $str = '';
-    $max = mb_strlen($keyspace, '8bit') - 1;
-    for ($i = 0; $i < $length; ++$i) {
-        $str .= $keyspace[random_int(0, $max)];
-    }
-    return $str;
+  $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  $str = '';
+  $max = mb_strlen($keyspace, '8bit') - 1;
+  for ($i = 0; $i < $length; ++$i) {
+    $str .= $keyspace[random_int(0, $max)];
+  }
+  return $str;
 }
 
 function send_email($email_address, $subject, $message) { 
@@ -85,7 +85,7 @@ function send_email($email_address, $subject, $message) {
   $mail->AltBody = $message;
   $mail->addAttachment('logo.png');
   if (!$mail->send()) {
-      echo "Mailer Error: " . $mail->ErrorInfo;
+    echo "Mailer Error: " . $mail->ErrorInfo;
   }
 } 
 
@@ -105,19 +105,33 @@ function get_user_email_cookie() {
 
 function update_verify_string($connection, $email_address) {
   $query = "UPDATE users SET verify_string = '0' WHERE email_address =
-    '$email_address'";
+  '$email_address'";
   $result = $connection->query($query);
   if (!$result) //SHOULDN'T GET HERE
     die($connection->error);
 }
 
 function insert_new_verify_string($connection, $email_address) {
-    $token = random_str(8);
-    $query = "UPDATE users SET verify_string = '$token' WHERE email_address =
-    '$email_address'";
-    $result = $connection->query($query);
-    if (!$result) //SHOULDN'T GET HERE
-      die($connection->error);
-    return $token;
+  $token = random_str(8);
+  $query = "UPDATE users SET verify_string = '$token' WHERE email_address =
+  '$email_address'";
+  $result = $connection->query($query);
+  if (!$result) //SHOULDN'T GET HERE
+    die($connection->error);
+  return $token;
 }
+
+  function format_user_table($connection, $email_address) {
+    $orders = array();
+    $query = "SELECT * FROM files WHERE email_address='$email_address'";
+    $result = $connection->query($query);
+    if (!$result)
+      return false; 
+    for ($i = 0; $i < $result->num_rows; $i++) {
+      $row = $result->fetch_array(MYSQLI_NUM);
+      $new_array = array($row[3], $row[5], $row[2]);
+      array_push($orders, $new_array);
+    }
+    return $orders;
+  }
 ?>

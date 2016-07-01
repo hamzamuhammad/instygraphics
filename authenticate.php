@@ -24,8 +24,9 @@
 				setcookie('email_address', $email_address, 
 					time() - 2592000, '/');
 			}
-			//now, we start a session for this user: 
+			//now, we start a session for this user with a timeout 
 			session_start();
+      ini_set('session.gc_maxlifetime', 60 * 20); //20min timeout
 			$_SESSION['email_address'] = $email_address; 
 			welcome_msg();
 		}

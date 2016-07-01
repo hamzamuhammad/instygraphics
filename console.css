@@ -86,3 +86,8 @@ body {
     padding-left: 0;
   }
 }
+
+/** Center the contents of the element **/
+.centercontents {
+    text-align: center !important;
+}
