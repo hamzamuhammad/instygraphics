@@ -1,9 +1,4 @@
 <?php
-  // //to delete
-  setcookie('email_address', 'hamzamuhammad@utexas.edu', time() - 2592000);
-
-  // //to set
-
 
   include 'helper.php';
   $email_address = get_user_email_cookie();

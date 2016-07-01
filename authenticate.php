@@ -21,8 +21,8 @@
     				time() + 60 * 60 * 24 * 7, '/');
 			}
 			else if(isset($_COOKIE['email_address'])) {
-				setcookie('email_address', 'hamzamuhammad@utexas.edu', 
-					time() - 2592000);
+				setcookie('email_address', $email_address, 
+					time() - 2592000, '/');
 			}
 			//now, we start a session for this user: 
 			session_start();
@@ -44,7 +44,7 @@
 		}
 		$row = $result->fetch_array(MYSQLI_NUM);
 		$result->close();
-		$stored_password = $row[5];
+		$stored_password = $row[5];  
 		$token = generate_password($user_password);
 		if ($token !== $stored_password) { //password is wrong
 			unlock_table($connection);
@@ -84,7 +84,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Sign up</title>
+    <title>Login</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">

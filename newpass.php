@@ -1,4 +1,4 @@
-<?php //signup.php registers a new user into the database
+<?php //newpass.php takes in a code and new password for the user!
 
 	include 'helper.php';
 	require_once 'login.php';
@@ -7,53 +7,74 @@
 	if ($connection->connect_error)
 		die($connection->connect_error);
 
-  $email_address = "";
-	if (isset($_POST['submit'])) {		
-		$first_name = sanitizeMySQL($connection, $_POST['first_name']);
-	  $last_name = sanitizeMySQL($connection, $_POST['last_name']);
-	  $company_name = sanitizeMySQL($connection, $_POST['company_name']);
-	  $phone_number = sanitizeMySQL($connection, $_POST['phone_number']);
-	  $email_address = sanitizeMySQL($connection, $_POST['email_address']);
-	  $user_password = sanitizeMySQL($connection, $_POST['user_password']);
+	if (isset($_POST['submit'])) { 
+		$code = sanitizeMySQL($connection, $_POST['user_code']);
+		$user_password = sanitizeMySQL($connection, $_POST['user_password']);
+		$confirm_password = sanitizeMySQL($connection, 
+			$_POST['confirm_password']);
 
-    lock_table($connection);
+		lock_table($connection);
 
-	 	$result = add_account($connection, $first_name, $last_name, $company_name, 
-	 		$phone_number, $email_address, $user_password);
-	 	//have to show popup box telling user to confirm account via email!
-	 	//NOTE: BOTTOM IS TEMP!!!
-	 	if ($result) {
-		 	echo '<div class="alert alert-success">Successfully signed up! 
-      Please check your email to validate your registration.</div>';
+		$is_code_correct = check_code($connection, $code);
+		$email_address = get_user_email_address($connection, $code);
+		if ($user_password === $confirm_password && $is_code_correct && 
+			$email_address) {
+			//if we got here, then it all checks out!
+			update_password($connection, $user_password, $email_address);
+			update_verify_string($connection, $email_address);
+			echo '<div class="alert alert-success">Successfully changed 
+				password!</div>';
 		}
+		else if ($user_password !== $confirm_password) 
+			echo '<div class="alert alert-danger">Passwords do not match!</div>';
+		else if (!$is_code_correct)
+			echo '<div class="alert alert-danger">Incorrect code!</div>';
+		else
+			echo '<div class="alert alert-danger">Account doesn\'t exist!</div>';
+
+	}	
+	$connection->close();
+
+	//get our cookie
+	$email_address = get_user_email_cookie();
+
+	function check_code($connection, $code) { //this is implying that 
+		//the code sent to the user WAS NOT intercepted
+		$query = "SELECT * FROM users WHERE verify_string ='$code'";			
+		$result = $connection->query($query);
+		if (!$result) 
+			die($connection->error);
+		$row = $result->fetch_array(MYSQLI_NUM);
+		$result->close();
+		$stored_code = $row[6];
+		if ($stored_code === $code)
+			return true;
 		unlock_table($connection);
+		return false;
 	}
-	$connection->close();	
 
-  //get our cookie
-  $old_email_address = $email_address;
-  $email_address = get_user_email_cookie();
-
-	function add_account($connection, $first_name, $last_name, $company_name, 
-		$phone_number, $email_address, $user_password) {
+	function update_password($connection, $user_password, $email_address) {
 		$token = generate_password($user_password);
-    $verify_string = random_str(8);	 	
-	 	$query = "INSERT INTO users VALUES('$first_name', '$last_name', 
-	 		'$company_name', '$phone_number', '$email_address', '$token', 
-      '$verify_string')";
+		$query = "UPDATE users SET user_password = '$token' WHERE 
+		email_address = '$email_address'";
 		$result = $connection->query($query);
 		if (!$result) {
-      unlock_table($connection);
-	 		echo '<div class="alert alert-danger">Email address already 
-	 			registered.</div>';
-	 		return false;
+			unlock_table($connection);
+			die($connection->error);			
 		}
-    //send the mail here
-    $subject = 'Account Validation';
-    $message = 'Go to www.instygraphics.com/validate.php and enter in '
-      . $verify_string . ' to verify your email address.';
-    send_email($email_address, $subject, $message);
-		return true;
+	}
+
+	function get_user_email_address($connection, $code) {
+		$query = "SELECT * FROM users WHERE verify_string = '$code'";
+		$result = $connection->query($query);
+		if (!$result) {
+			unlock_table($connection);
+			return false;
+		}
+		$row = $result->fetch_array(MYSQLI_NUM);
+		$result->close();
+		$email_address = $row[4];
+		return $email_address;
 	}
 ?>
 
@@ -67,7 +88,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Sign up</title>
+    <title>New Password</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
@@ -147,57 +168,21 @@
 
     <div class="container">
 
-<form action = "signup.php" method="POST" form class="form-horizontal" role="form">
-    <div class="centercontents">
-      <h2 class="form-signin-heading">Sign up</h2>
-    </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">First name</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="firstName" name="first_name" placeholder="Enter first name" required
-      value="<?php if (isset($_POST['submit'])) echo $first_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Last name</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="lastName" name="last_name" placeholder="Enter last name" required
-      value="<?php if (isset($_POST['submit'])) echo $last_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Company</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="companyName" name="company_name" placeholder="Enter company name" required
-      value="<?php if (isset($_POST['submit'])) echo $company_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Cell number</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="emailAddress" name="phone_number" placeholder="Enter cell number" required
-      value="<?php if (isset($_POST['submit'])) echo $phone_number;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="email">Email</label>
-    <div class="col-sm-10">
-      <input type="email" class="form-control" id="emailAddress" name="email_address" placeholder="Enter email address" required
-      value="<?php if (isset($_POST['submit'])) echo $old_email_address;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="pwd">Password</label>
-    <div class="col-sm-10"> 
-      <input type="password" class="form-control" id="password" name="user_password" placeholder="Enter password" required>
-    </div>
-  </div>
-  <div class="form-group"> 
-    <div class="centercontents">
-      <button type="submit" class="btn btn-default" name="submit">Submit</button>
-    </div>
-  </div>
-</form>
+	<form action = "newpass.php" method="POST" form class="form-signin" role="form">
+        <h2 class="form-signin-heading">Enter your code and new password</h2>
+        <div class="form-group">
+        	<input type="text" id="inputText" class="form-control" placeholder="Code" name="user_code" required autofocus>        
+        </div>
+        <div class="form-group">
+        	<input type="password" id="inputText" class="form-control" placeholder="New Password" name="user_password" required autofocus>        
+        </div>
+        <div class="form-group">
+        	<input type="password" id="inputText" class="form-control" placeholder="Confirm Password" name="confirm_password" required autofocus>        
+        </div>
+        <div class="form-group">
+        	<button class="btn btn-lg btn-primary btn-block" type="submit" name="submit">Update</button>
+    	</div>
+    </form>
 
     </div> <!-- /container -->
 

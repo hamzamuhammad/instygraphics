@@ -39,18 +39,10 @@
 		$email_address = $row[4];
 		update_verify_string($connection, $email_address);
 		$subject = 'Account Validated!';
-    	$message = 'Congratulations! Your account has been validated. Now you
-    		can sign in.';
-    	send_email($email_address, $subject, $message);
+    $message = 'Congratulations! Your account has been validated. Now you
+    	can sign in.';
+    send_email($email_address, $subject, $message);
 		return true;
-	}
-
-	function update_verify_string($connection, $email_address) {
-		$query = "UPDATE users SET verify_string = '0' WHERE email_address =
-			'$email_address'";
-		$result = $connection->query($query);
-		if (!$result) //SHOULDN'T GET HERE
-			die($connection->error);
 	}
 
 ?>

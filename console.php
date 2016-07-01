@@ -44,39 +44,38 @@
         <nav>
           <ul class="nav nav-justified">
             <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">Orders</a></li>
-            <li><a href="#">Inbox</a></li>
-            <li><a href="#">Help</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Logout</a></li>
+            <li><a href="orders.php">Orders</a></li>
+            <li><a href="inbox.php">Inbox (Beta)</a></li>
+            <li><a href="help.php">Help</a></li>
+            <li><a href="setting.php">Settings</a></li>
+            <li><a href="logout.php">Logout</a></li>
           </ul>
         </nav>
       </div>
 
       <!-- Jumbotron -->
       <div class="jumbotron">
-        <h1>Welcome, <?php echo $first_name; ?></h1>
-        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet.</p>
+        <h1>Welcome</h1>
+        <p class="lead">Manage all of your business with our user-friendly console. <p>Get started by placing a new order!</p></p>
         <p><a class="btn btn-lg btn-success" href="#" role="button">Send a quote</a></p>
       </div>
 
       <!-- Example row of columns -->
       <div class="row">
         <div class="col-lg-4">
-          <h2>Safari bug warning!</h2>
-          <p class="text-danger">As of v8.0, Safari exhibits a bug in which resizing your browser horizontally causes rendering errors in the justified nav that are cleared upon refreshing.</p>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-primary" href="#" role="button">View details &raquo;</a></p>
+          <h2>Not sure where to start?</h2>
+          <p>Go to our help page and read the tutorials on how to use the instygraphics console.</p>
+          <p><a class="btn btn-primary" href="#" role="button">Help page &raquo;</a></p>
         </div>
         <div class="col-lg-4">
-          <h2>Heading</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-primary" href="#" role="button">View details &raquo;</a></p>
+          <h2>Want to advertise with us?</h2>
+          <p>For a limited time, instygraphics is offering some ad space on the main website.</p>
+          <p><a class="btn btn-primary" href="#" role="button">More info &raquo;</a></p>
        </div>
         <div class="col-lg-4">
-          <h2>Heading</h2>
-          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa.</p>
-          <p><a class="btn btn-primary" href="#" role="button">View details &raquo;</a></p>
+          <h2>Like our website so far?</h2>
+          <p>The entire instygraphics site is part of the Small Business Starter Pack (SBSP).</p>
+          <p><a class="btn btn-primary" href="#" role="button">Check it out &raquo;</a></p>
         </div>
       </div>
 

@@ -102,4 +102,22 @@ function get_user_email_cookie() {
     $email_address = $_COOKIE['email_address'];
   return $email_address;
 }
+
+function update_verify_string($connection, $email_address) {
+  $query = "UPDATE users SET verify_string = '0' WHERE email_address =
+    '$email_address'";
+  $result = $connection->query($query);
+  if (!$result) //SHOULDN'T GET HERE
+    die($connection->error);
+}
+
+function insert_new_verify_string($connection, $email_address) {
+    $token = random_str(8);
+    $query = "UPDATE users SET verify_string = '$token' WHERE email_address =
+    '$email_address'";
+    $result = $connection->query($query);
+    if (!$result) //SHOULDN'T GET HERE
+      die($connection->error);
+    return $token;
+}
 ?>

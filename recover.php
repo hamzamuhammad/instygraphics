@@ -1,5 +1,5 @@
-<?php //signup.php registers a new user into the database
-
+<?php //recover.php reset the users password by emailing them a special code
+	
 	include 'helper.php';
 	require_once 'login.php';
 	$connection = new mysqli($db_hostname, $db_username, $db_password, 
@@ -7,53 +7,44 @@
 	if ($connection->connect_error)
 		die($connection->connect_error);
 
-  $email_address = "";
-	if (isset($_POST['submit'])) {		
-		$first_name = sanitizeMySQL($connection, $_POST['first_name']);
-	  $last_name = sanitizeMySQL($connection, $_POST['last_name']);
-	  $company_name = sanitizeMySQL($connection, $_POST['company_name']);
-	  $phone_number = sanitizeMySQL($connection, $_POST['phone_number']);
-	  $email_address = sanitizeMySQL($connection, $_POST['email_address']);
-	  $user_password = sanitizeMySQL($connection, $_POST['user_password']);
+	if (isset($_POST['submit'])) { //means the user submitted an email address
+		$email_address = sanitizeMySQL($connection, $_POST['email_address']);
 
-    lock_table($connection);
+		lock_table($connection);
 
-	 	$result = add_account($connection, $first_name, $last_name, $company_name, 
-	 		$phone_number, $email_address, $user_password);
-	 	//have to show popup box telling user to confirm account via email!
-	 	//NOTE: BOTTOM IS TEMP!!!
-	 	if ($result) {
-		 	echo '<div class="alert alert-success">Successfully signed up! 
-      Please check your email to validate your registration.</div>';
+		if (check_account($connection, $email_address)) { //account exists
+			$subject = 'Reset Password';
+			update_verify_string($connection, $email_address);
+			$token = insert_new_verify_string($connection, $email_address);
+			$message = 'Go to www.instygraphics.com/newpass.php and enter in '
+				 . $token . ' to create a new password.';
+			send_email($email_address, $subject, $message);
+			echo '<div class="alert alert-success">Check your email to change 
+			your password.</div>';				
+			unlock_table($connection);
 		}
-		unlock_table($connection);
 	}
-	$connection->close();	
+	$connection->close();
 
-  //get our cookie
-  $old_email_address = $email_address;
-  $email_address = get_user_email_cookie();
+	//get our cookie
+	$email_address = get_user_email_cookie();
 
-	function add_account($connection, $first_name, $last_name, $company_name, 
-		$phone_number, $email_address, $user_password) {
-		$token = generate_password($user_password);
-    $verify_string = random_str(8);	 	
-	 	$query = "INSERT INTO users VALUES('$first_name', '$last_name', 
-	 		'$company_name', '$phone_number', '$email_address', '$token', 
-      '$verify_string')";
+	function check_account($connection, $email_address) {
+		$query = "SELECT * FROM users WHERE email_address = '$email_address'";
 		$result = $connection->query($query);
 		if (!$result) {
-      unlock_table($connection);
-	 		echo '<div class="alert alert-danger">Email address already 
-	 			registered.</div>';
-	 		return false;
+			$result->close();
+			unlock_table($connection);
+			echo '<div class="alert alert-danger">Account doesn\'t exist!</div>';
+			return false;
 		}
-    //send the mail here
-    $subject = 'Account Validation';
-    $message = 'Go to www.instygraphics.com/validate.php and enter in '
-      . $verify_string . ' to verify your email address.';
-    send_email($email_address, $subject, $message);
-		return true;
+		$row = $result->fetch_array(MYSQLI_NUM);
+		$verify_string= $row[6];
+		if ($verify_string === '0') //if the user has confirmed account
+			return true;
+		unlock_table($connection);
+		echo '<div class="alert alert-danger">Code already sent!</div>';
+		return false;
 	}
 ?>
 
@@ -67,7 +58,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Sign up</title>
+    <title>Recover Password</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
@@ -110,7 +101,7 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
             <li><a href="#signup">FAQ</a></li>  
-            <li class="active"><a href="#signup">Sign up</a><li>                  
+            <li class="active"><a href="#signup">Recover</a><li>     
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
                 <ul class="dropdown-menu">
@@ -137,9 +128,7 @@
                     </label>
                   </div>
                 </form>
-              </li>
-            </ul>
-          </li>
+              </li>             
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -147,57 +136,16 @@
 
     <div class="container">
 
-<form action = "signup.php" method="POST" form class="form-horizontal" role="form">
-    <div class="centercontents">
-      <h2 class="form-signin-heading">Sign up</h2>
-    </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">First name</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="firstName" name="first_name" placeholder="Enter first name" required
-      value="<?php if (isset($_POST['submit'])) echo $first_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Last name</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="lastName" name="last_name" placeholder="Enter last name" required
-      value="<?php if (isset($_POST['submit'])) echo $last_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Company</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="companyName" name="company_name" placeholder="Enter company name" required
-      value="<?php if (isset($_POST['submit'])) echo $company_name;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="text">Cell number</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="emailAddress" name="phone_number" placeholder="Enter cell number" required
-      value="<?php if (isset($_POST['submit'])) echo $phone_number;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="email">Email</label>
-    <div class="col-sm-10">
-      <input type="email" class="form-control" id="emailAddress" name="email_address" placeholder="Enter email address" required
-      value="<?php if (isset($_POST['submit'])) echo $old_email_address;?>">
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="control-label col-sm-2" for="pwd">Password</label>
-    <div class="col-sm-10"> 
-      <input type="password" class="form-control" id="password" name="user_password" placeholder="Enter password" required>
-    </div>
-  </div>
-  <div class="form-group"> 
-    <div class="centercontents">
-      <button type="submit" class="btn btn-default" name="submit">Submit</button>
-    </div>
-  </div>
-</form>
+	<form action = "recover.php" method="POST" form class="form-signin" role="form">
+        <h2 class="form-signin-heading">Enter your email</h2>
+        <label for="inputText" class="sr-only">Enter Email</label>
+        <div class="form-group">
+        	<input type="text" id="inputText" class="form-control" placeholder="Email Address" name="email_address" required autofocus>        
+        </div>
+        <div class="form-group">
+        	<button class="btn btn-lg btn-primary btn-block" type="submit" name="submit">Recover</button>
+    	</div>
+    </form>
 
     </div> <!-- /container -->
 
