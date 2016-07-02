@@ -5,6 +5,61 @@
     include 'timeout.php'; 
     exit;
   }
+
+  $email_address = $_SESSION['email_address'];
+
+  include 'helper.php';
+  require_once 'login.php';
+  $connection = new mysqli($db_hostname, $db_username, $db_password, 
+    $db_database);
+  if ($connection->connect_error)
+    die($connection->connect_error);
+
+  if (isset($_POST) && isset($_FILES['file'])) {
+    $comments = "";
+    if (isset($_POST['comments']))
+      $comments = sanitizeMySQL($connection, $_POST['comments']);
+    $old_file_name = $_FILES['file']['name'];
+    $file_count = inc_file_count();
+    $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+    $new_file_name = $file_count . '.' . $extension;
+    move_uploaded_file($_FILES['file']['tmp_name'], "uploads/$new_file_name");
+    update_files_db($connection, $email_address, $new_file_name, $comments, 
+      $old_file_name);
+  }
+  $connection->close();
+
+  function update_files_db($connection, $email_address, $new_file_name, 
+    $comments, $old_file_name) {
+    //lock_table($connection); //POSSIBLE BUG?
+    send_email("sales@instygraphics.com", "New order submitted!", "Please 
+      check the admin console to view the order details.");
+    $timestamp = time();
+    $query = "INSERT INTO 
+      files(email_address, file_name, date_uploaded, status, comments, 
+        old_file_name) 
+          VALUES('$email_address', '$new_file_name', '$timestamp', 'pending', 
+            '$comments', '$old_file_name')";
+    $result = $connection->query($query);
+    if (!$result) 
+      die($connection->error);
+    //$unlock_table($connection);
+  }
+
+  function inc_file_count() {
+    $fh = fopen("count.txt", 'r+') or die("File does not exist or you lack 
+      permission to open it");
+    $line = fgets($fh);
+    if (flock($fh, LOCK_EX)) {
+      $count = intval($line);
+      $file_count = $count + 1;
+      fseek($fh, 0);
+      fwrite($fh, $file_count) or die("Could not write to file");
+      flock($fh, LOCK_UN);
+    }
+    fclose($fh);
+    return $file_count;
+  }
 ?>
 
 <html lang="en">
@@ -18,9 +73,6 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>Console</title>
-
-    <!-- jquery plugin -->
-    <script type = "text/javascript" src = "http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
     <!-- Bootstrap core CSS -->
     <link href="../../dist/css/bootstrap.min.css" rel="stylesheet">
@@ -62,17 +114,35 @@
         </nav>
       </div>
 
+
+      <div id="orderPlaced">
+        <div class="alert alert-info" role="alert">
+          <strong>Success! </strong>Your order has been placed!
+        </div>
         <div class="centercontents">
-          <h1 class="page-header">New Order</h1>
+          <a href="orders.php" class="btn btn-info btn-md" role="button">Return &raquo;</a>
+        </div>
+      </div>
+        <div class="centercontents">
+          <h2 class="page-header">New Order</h2>
         </div>
         <h4 class="sub-header" align="center">Upload a file and add additional comments</h4>
-        <form action="upload.php" method="POST" role="form" enctype="multipart/form-data" id="myUploadForm">
+        <div class="centercontents">
+          <div id="bar_blank">
+              <div id="bar_color">
+              </div>
+          </div>
+        </div>
+        <div id="status"></div>
+        <form action="neworder.php" method="POST" role="form" enctype="multipart/form-data" id="myForm" target="hidden_iframe">
+          <div class="form-group">
+            <input type="hidden" value="myForm" name="<?php echo ini_get("session.upload_progress.name"); ?>">
+          </div>
           <div class="form-group">
             <div class="centercontents">
               <label class="btn btn-primary" for="fileInput">
                 <input id="fileInput" type="file" size='10' name="file">
               </label>
-              <img src="ajax-loader.gif" id="loading-img" style="display:none;" alt="Please Wait"/>
             </div>
           </div>
           <div class="form-group">
@@ -86,6 +156,8 @@
             </div>
           </div>
         </form>
+        <iframe id="hidden_iframe" name="hidden_iframe" src="about:blank"></iframe>
+        <script type="text/javascript" src="loading.js"></script>
       
       <!-- Site footer -->
       <footer class="footer">
@@ -94,7 +166,7 @@
 
     </div> <!-- /container -->
 
-	<!-- Bootstrap core JavaScript
+  <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
