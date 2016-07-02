@@ -129,9 +129,35 @@ function insert_new_verify_string($connection, $email_address) {
       return false; 
     for ($i = 0; $i < $result->num_rows; $i++) {
       $row = $result->fetch_array(MYSQLI_NUM);
-      $new_array = array($row[3], $row[5], $row[2]);
+      $new_array = array($row[3], $row[5], $row[2], $row[1]);
       array_push($orders, $new_array);
     }
     return $orders;
+  }
+
+  function inc_file_count() {
+    mod_file_count(true);
+  }
+
+  function dec_file_count() {
+    mod_file_count(false);
+  }
+
+  function mod_file_count($inc) {
+    $fh = fopen("count.txt", 'r+') or die("File does not exist or you lack 
+      permission to open it");
+    $line = fgets($fh);
+    if (flock($fh, LOCK_EX)) {
+      $count = intval($line);
+      if ($inc)
+        $file_count = $count + 1;
+      else
+        $file_count = $count - 1;
+      fseek($fh, 0);
+      fwrite($fh, $file_count) or die("Could not write to file");
+      flock($fh, LOCK_UN);
+    }
+    fclose($fh);
+    return $file_count;
   }
 ?>

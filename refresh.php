@@ -10,36 +10,19 @@
 	session_start();
 	$email_address = $_SESSION['email_address'];
 
-	echo '<div class="jumbotron">
+	echo '
+
+
+	<div class="jumbotron">
       	<div class="row">
       		<div class="col-md-6">
       			<table class="table">
       				<thead>
       					<tr>
-      						<th colspan="3" style="text-align:center">
-								<div class="btn-group btn-group-justified" role="group" aria-label="Justified button group"> 
-	      							<div class="btn-group" role"group">
-	      								<form action = "neworder.php" form class="form-signin" role="form">
-	      									<div class="form-group">
-	      										<button type="submit" class="input-block-level">New</button>
-	      									</div>
-	      								</form>
-	      							</div>
-	      							<div class="btn-group" role"group">
-	      								<form action = "editorder.php" form class="form-signin" role="form">
-	      									<div class="form-group">
-	      										<button type="submit" class="input-block-level">Edit</button>
-	      									</div>
-	      								</form>	      							
-	      							</div>	      							
-	      							<div class="btn-group" role"group">
-	      								<form action = "deleteorder.php" form class="form-signin" role="form">
-	      									<div class="form-group">
-	      										<button type="submit" class="input-block-level">Delete</button>
-	      									</div>
-	      								</form>
-	      							</div>
-      							</div>
+      						<th>
+								<div class="centercontents">
+									<a href="neworder.php" class="btn btn-primary btn-md" role="button">New</a>
+								</div>
       						</th>
       					</tr>
       				</thead>
@@ -53,13 +36,15 @@
 
 	$orders = format_user_table($connection, $email_address);
 	if (count($orders) > 0) { //if user has orders
-		echo '<tbody>';
+		echo '<tbody><form action = "editorder.php" method="POST" role="form">';
 		for ($i = 0; $i < count($orders); $i++) {
 			$row = $orders[$i];
 			echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>'
-				 . $row[2] . '</td></tr>';
+				 . $row[2] . '</td><td><button type="submit" class="input-block-level">Edit</button></td></tr>';
+			//this is hidden field (index);
+			echo '<div class="form-group"><input type="hidden" name="file_name" value=' . $row[3] . '></div>';
 		}
-      	echo '</tbody>';
+      	echo '</form></tbody>';
 	}
 
 	echo'
@@ -67,8 +52,4 @@
       		</div>
       	 </div>
       </div>';
-
-
-
-
 ?>

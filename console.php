@@ -59,9 +59,9 @@
       </div>
 
       <!-- Jumbotron -->
-      <div class="jumbotron">
-        <h1>Welcome</h1>
-        <p class="lead">Manage all of your business with our user-friendly console. <p>Get started by placing a new order!</p></p>
+      <div class="centercontents">
+        <h1>Welcome!</h1>
+        <p>Manage all of your business with our user-friendly console. <p>Get started by placing a new order!</p></p>
         <p><a class="btn btn-lg btn-success" href="#" role="button">Send a quote</a></p>
       </div>
 
