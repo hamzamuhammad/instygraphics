@@ -1,11 +1,11 @@
-<?php
-  
+<?php //inbox.php is JUST A BETA BE AWARE
   session_start();
   if (!isset($_SESSION['email_address'])) { //session timed out {}
-    include 'timeout.php';
-    exit;
+  include 'timeout.php';
+  exit;
   }
 ?>
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -48,9 +48,9 @@
         <h3 class="text-muted">instygraphics Console</h3>
         <nav>
           <ul class="nav nav-justified">
-            <li class="active"><a href="#">Home</a></li>
+            <li><a href="console.php">Home</a></li>
             <li><a href="orders.php">Orders</a></li>
-            <li><a href="inbox.php">Inbox (Beta)</a></li>
+            <li class="active"><a href="inbox.php">Inbox (Beta)</a></li>
             <li><a href="help.php">Help</a></li>
             <li><a href="settings.php">Settings</a></li>
             <li><a href="logout.php">Logout</a></li>
@@ -60,28 +60,9 @@
 
       <!-- Jumbotron -->
       <div class="centercontents">
-        <h1>Welcome!</h1>
-        <p>Manage all of your business with our user-friendly console. <p>Get started by placing a new order!</p></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button">Send a quote</a></p>
-      </div>
-
-      <!-- Example row of columns -->
-      <div class="row">
-        <div class="col-lg-4">
-          <h2>Not sure where to start?</h2>
-          <p>Go to our help page and read the tutorials on how to use the instygraphics console.</p>
-          <p><a class="btn btn-primary" href="help.php" role="button">Help page &raquo;</a></p>
-        </div>
-        <div class="col-lg-4">
-          <h2>Want to advertise with us?</h2>
-          <p>For a limited time, instygraphics is offering some ad space on the main website.</p>
-          <p><a class="btn btn-primary" href="#" role="button">More info &raquo;</a></p>
-       </div>
-        <div class="col-lg-4">
-          <h2>Like our website so far?</h2>
-          <p>The entire instygraphics site is part of the Small Business Starter Pack (SBSP).</p>
-          <p><a class="btn btn-primary" href="#" role="button">Check it out &raquo;</a></p>
-        </div>
+        <h1>Still in development!</h1>
+        <p>Check out the progress on Hamza's GitHub profile by clicking the button below.</p>
+        <p><a class="btn btn-lg btn-success" href="www.github.com/hamzamuhammad" role="button">Go &raquo;</a></p>
       </div>
 
       <!-- Site footer -->

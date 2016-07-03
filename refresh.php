@@ -1,5 +1,5 @@
 <?php //refresh.php is the standard script called from orders.php
-	
+
 	include 'helper.php';
 	require_once 'login.php';
 	$connection = new mysqli($db_hostname, $db_username, $db_password, 
@@ -8,15 +8,9 @@
 		die($connection->connect_error);
 
 	session_start();
-	if (!isset($_SESSION['email_address'])) { //session timed out
-  	  include 'timeout.php'; 
-      exit;
-  	}
 	$email_address = $_SESSION['email_address'];
 
 	echo '
-
-
 	<div class="jumbotron">
       	<div class="row">
       		<div class="col-md-6">

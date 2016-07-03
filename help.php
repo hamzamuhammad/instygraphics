@@ -48,41 +48,66 @@
         <h3 class="text-muted">instygraphics Console</h3>
         <nav>
           <ul class="nav nav-justified">
-            <li class="active"><a href="#">Home</a></li>
+            <li><a href="console.php">Home</a></li>
             <li><a href="orders.php">Orders</a></li>
             <li><a href="inbox.php">Inbox (Beta)</a></li>
-            <li><a href="help.php">Help</a></li>
+            <li class="active"><a href="#">Help</a></li>
             <li><a href="settings.php">Settings</a></li>
             <li><a href="logout.php">Logout</a></li>
           </ul>
         </nav>
       </div>
 
-      <!-- Jumbotron -->
-      <div class="centercontents">
-        <h1>Welcome!</h1>
-        <p>Manage all of your business with our user-friendly console. <p>Get started by placing a new order!</p></p>
-        <p><a class="btn btn-lg btn-success" href="#" role="button">Send a quote</a></p>
+      <div class="blog-header">
+        <h1 class="blog-title">Help Page</h1>
+        <p class="lead blog-description">Updated as new features are rolled out.</p>
       </div>
 
-      <!-- Example row of columns -->
       <div class="row">
-        <div class="col-lg-4">
-          <h2>Not sure where to start?</h2>
-          <p>Go to our help page and read the tutorials on how to use the instygraphics console.</p>
-          <p><a class="btn btn-primary" href="help.php" role="button">Help page &raquo;</a></p>
-        </div>
-        <div class="col-lg-4">
-          <h2>Want to advertise with us?</h2>
-          <p>For a limited time, instygraphics is offering some ad space on the main website.</p>
-          <p><a class="btn btn-primary" href="#" role="button">More info &raquo;</a></p>
-       </div>
-        <div class="col-lg-4">
-          <h2>Like our website so far?</h2>
-          <p>The entire instygraphics site is part of the Small Business Starter Pack (SBSP).</p>
-          <p><a class="btn btn-primary" href="#" role="button">Check it out &raquo;</a></p>
-        </div>
-      </div>
+
+        <div class="col-sm-8 blog-main">
+
+          <div class="blog-post">
+            <h2 class="blog-post-title">Using the instygraphics console</h2>
+            <p class="blog-post-meta">July 3, 2016 by <a href="#">Hamza</a></p>
+
+            <p>Once you login, you're greeted with a home page that is occasionally updated with new content from instygraphics.</p>
+            <hr>
+            <p>Click on <a href="orders.php">Orders</a> to make new orders as well as edit existing ones. Initially, it'll be empty until you submit an order; when you do, you'll see a table with various information in it.</p>
+            <blockquote>
+              <p><strong>Status</strong> tells you what the current state of your order is. There are 4: pending, on hold, in progress, and completed.</p>
+              <hr>
+              <p><strong>File Name</strong> tells you the name of the file you uploaded with the corresponding order (so make sure to have descriptive file names!).</p>
+              <hr>
+              <p><strong>Date Uploaded</strong> tells you the date order was submitted in month-day-year format.</p>
+            </blockquote>
+            <p>The orders table is refreshed <em>every few seconds</em> so you'll see real-time updates as your order gets processed.</p>
+            <h2>Making a new order</h2>
+            <p>Click on the new button to view a form containing a button to upload your files, and a textbox for comments you want the admin to view. Please note that the progress bar will show you how much
+            	of the file has been uploaded, so please <em>DO NOT</em> exit the page until its complete. Then, press submit to send an order!</p>
+            <h3>Editing and deleting orders</h3>
+            <p>Click on the edit button to view a page similar to new order page, with your original comments still there. Upload a new file to override the old one submitted, and update your comments as well. Press update to finish the process.</p>
+            <p>Click on the delete button to permanently remove an order.</p>
+          </div><!-- /.blog-post -->
+
+        </div><!-- /.blog-main -->
+
+        <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+          <div class="sidebar-module">
+            <h4>Topics</h4>
+            <ol class="list-unstyled">
+              <li><a href="#">console</a></li>
+            </ol>
+          </div>
+          <div class="sidebar-module">
+            <h4>For developers</h4>
+            <ol class="list-unstyled">
+              <li><a href="#">GitHub</a></li>
+            </ol>
+          </div>
+        </div><!-- /.blog-sidebar -->
+
+      </div><!-- /.row -->
 
       <!-- Site footer -->
       <footer class="footer">

@@ -194,7 +194,7 @@
   </div>
   <div class="form-group"> 
     <div class="centercontents">
-      <button type="submit" class="btn btn-default" name="submit">Submit</button>
+      <button type="submit" class="btn btn-success" name="submit">Submit</button>
     </div>
   </div>
 </form>

@@ -155,7 +155,7 @@
             <li class="active"><a href="#">Orders</a></li>
             <li><a href="inbox.php">Inbox (Beta)</a></li>
             <li><a href="help.php">Help</a></li>
-            <li><a href="setting.php">Settings</a></li>
+            <li><a href="settings.php">Settings</a></li>
             <li><a href="logout.php">Logout</a></li>
           </ul>
         </nav>
