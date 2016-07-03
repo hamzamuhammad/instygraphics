@@ -53,22 +53,6 @@
     }
 
     $connection->close();
-  
-	  function get_user_comments($connection, $old_file_id) {
-      //lock_table($connection);
-      $query = "SELECT * FROM files WHERE file_id = '$old_file_id'";
-      $result = $connection->query($query);
-      if (!$result) {
-        //unlock_table($connection);
-        echo '<div class="alert alert-danger">Order doesn\'t exist!</div>';
-        exit;
-      }
-      $row = $result->fetch_array(MYSQLI_NUM);
-      $result->close();
-      $comments = $row[4];
-      //unlock_table($connection);
-      return $comments;
-    }
 
     function update_order($changed_file, $connection, $new_file_id, $old_file_id, 
       $new_file_name, $comments) {
@@ -206,8 +190,6 @@
             </div>
           </div>
         </form>
-        <iframe id="hidden_iframe" name="hidden_iframe" src="about:blank"></iframe>
-        <script type="text/javascript" src="loading.js"></script>
       
       <!-- Site footer -->
       <footer class="footer">

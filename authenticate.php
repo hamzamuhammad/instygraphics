@@ -27,8 +27,11 @@
 			//now, we start a session for this user with a timeout 
 			session_start();
       ini_set('session.gc_maxlifetime', 60 * 20); //20min timeout
-			$_SESSION['email_address'] = $email_address; 
-			welcome_msg();
+			$_SESSION['email_address'] = $email_address;
+      if ($email_address === 'sales@instygraphics.com') 
+			  welcome_msg(true);
+      else
+        welcome_msg(false);
 		}
 
 	}
@@ -61,15 +64,21 @@
 			<a href="signup.php">Sign up!</a></div>';
 	}
 
-	function welcome_msg() {
+	function welcome_msg($is_admin) {
 		echo '<div class="alert alert-success">Successfully signed in!</div>';
 		echo '<div class="alert alert-info" role="alert">
-        	<strong>Heads up! </strong>The admin is working on getting an SSL 
-        	certificate.</div>';
+      <strong>Heads up! </strong>The admin is working on getting an SSL 
+      certificate.</div>';
+    if ($is_admin)
+      echo '<form action = "adminconsole.php" form class="form-signin" role="form">
+        <div class="form-group">
+        <button class="btn btn-lg btn-primary btn-block" type="submit" 
+        name="submit">Console</button></div></form>';
+    else
         echo '<form action = "console.php" form class="form-signin" role="form">
-        	<div class="form-group">
-        	<button class="btn btn-lg btn-primary btn-block" type="submit" 
-        	name="submit">Console</button></div></form>';
+        <div class="form-group">
+        <button class="btn btn-lg btn-primary btn-block" type="submit" 
+        name="submit">Console</button></div></form>';
 	}
 
 

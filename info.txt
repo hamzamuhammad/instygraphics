@@ -1,0 +1,14 @@
+CURRENT BUGS:
+-unable to delete old user files when user updates their file
+-many mysql queries are not surrounded by locks
+-adminconsole does not have any sort of session expiration (weird bug)
+
+TO-DO LIST:
+-start regressive testing for all functions
+-modify .htaccess file to hide site urls
+-HIDE UPLOADS FOLDER!
+-possibly fix permissions for uploads/ folder
+-fill out rest of website (about, contact, etc.)
+-organize files into logical folders
+-get an SSL security certificate for site (1&1)
+-THEN, UPDATE FOOTER TO SHOW VERSION 1.0

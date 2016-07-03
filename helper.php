@@ -140,4 +140,34 @@ function insert_new_verify_string($connection, $email_address) {
     }
     return $orders;
   }
+
+  function format_admin_table($connection) {
+    $orders = array();
+    $query = "SELECT * FROM files";
+    $result = $connection->query($query);
+    if (!$result)
+      return false;
+    for ($i = 0; $i < $result->num_rows; $i++) {
+      $row = $result->fetch_array(MYSQLI_NUM);
+      $new_array = array($row[3], $row[5], $row[2], $row[1], $row[0]);
+      array_push($orders, $new_array);
+    }
+    return $orders;
+  }
+
+  function get_user_comments($connection, $old_file_id) {
+  //lock_table($connection);
+    $query = "SELECT * FROM files WHERE file_id = '$old_file_id'";
+    $result = $connection->query($query);
+    if (!$result) {
+      //unlock_table($connection);
+      echo '<div class="alert alert-danger">Order doesn\'t exist!</div>';
+      exit;
+    }
+    $row = $result->fetch_array(MYSQLI_NUM);
+    $result->close();
+    $comments = $row[4];
+    //unlock_table($connection);
+    return $comments;
+  }
 ?>
