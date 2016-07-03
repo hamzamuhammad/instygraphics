@@ -8,6 +8,10 @@
 		die($connection->connect_error);
 
 	session_start();
+	if (!isset($_SESSION['email_address'])) { //session timed out
+  	  include 'timeout.php'; 
+      exit;
+  	}
 	$email_address = $_SESSION['email_address'];
 
 	echo '
@@ -16,6 +20,7 @@
 	<div class="jumbotron">
       	<div class="row">
       		<div class="col-md-6">
+      			<form action = "editorder.php" method="POST" role="form" id="edit_form"></form>
       			<table class="table">
       				<thead>
       					<tr>
@@ -36,15 +41,18 @@
 
 	$orders = format_user_table($connection, $email_address);
 	if (count($orders) > 0) { //if user has orders
-		echo '<tbody><form action = "editorder.php" method="POST" role="form">';
+		echo '<tbody>';
 		for ($i = 0; $i < count($orders); $i++) {
 			$row = $orders[$i];
 			echo '<tr><td>' . $row[0] . '</td><td>' . $row[1] . '</td><td>'
-				 . $row[2] . '</td><td><button type="submit" class="input-block-level">Edit</button></td></tr>';
-			//this is hidden field (index);
-			echo '<div class="form-group"><input type="hidden" name="file_name" value=' . $row[3] . '></div>';
-		}
-      	echo '</form></tbody>';
+				 . date('m-d-Y', $row[2]) . '</td>';
+			echo "<td><form action='editorder.php' method='POST'><input type='hidden' name='file_id' value='".$row[3]."'/>
+                      <input type='submit' name='submit' value='Edit' /></form></td>
+                      <td><form action='deleteorder.php' method='POST'><input type='hidden' name='file_id' value='".$row[3]."'/>
+                      <input type='submit' name='submit' value='Delete' /></form></td>
+                      </tr>";
+		}	
+      	echo '</tbody>';
 	}
 
 	echo'

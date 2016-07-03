@@ -20,45 +20,29 @@
     if (isset($_POST['comments']))
       $comments = sanitizeMySQL($connection, $_POST['comments']);
     $old_file_name = $_FILES['file']['name'];
-    $file_count = inc_file_count();
     $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
-    $new_file_name = $file_count . '.' . $extension;
-    move_uploaded_file($_FILES['file']['tmp_name'], "uploads/$new_file_name");
-    update_files_db($connection, $email_address, $new_file_name, $comments, 
+    $file_id = generate_file_id($email_address) . '.' . $extension;
+    move_uploaded_file($_FILES['file']['tmp_name'], "uploads/$file_id");
+    update_files_db($connection, $email_address, $file_id, $comments, 
       $old_file_name);
   }
   $connection->close();
 
-  function update_files_db($connection, $email_address, $new_file_name, 
+  function update_files_db($connection, $email_address, $file_id, 
     $comments, $old_file_name) {
     //lock_table($connection); //POSSIBLE BUG?
     send_email("sales@instygraphics.com", "New order submitted!", "Please 
       check the admin console to view the order details.");
     $timestamp = time();
     $query = "INSERT INTO 
-      files(email_address, file_name, date_uploaded, status, comments, 
+      files(email_address, file_id, date_uploaded, status, comments, 
         old_file_name) 
-          VALUES('$email_address', '$new_file_name', '$timestamp', 'pending', 
+          VALUES('$email_address', '$file_id', '$timestamp', 'pending', 
             '$comments', '$old_file_name')";
     $result = $connection->query($query);
     if (!$result) 
       die($connection->error);
     //$unlock_table($connection);
-  }
-
-  function inc_file_count() {
-    $fh = fopen("count.txt", 'r+') or die("File does not exist or you lack 
-      permission to open it");
-    $line = fgets($fh);
-    if (flock($fh, LOCK_EX)) {
-      $count = intval($line);
-      $file_count = $count + 1;
-      fseek($fh, 0);
-      fwrite($fh, $file_count) or die("Could not write to file");
-      flock($fh, LOCK_UN);
-    }
-    fclose($fh);
-    return $file_count;
   }
 ?>
 

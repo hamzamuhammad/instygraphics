@@ -96,6 +96,12 @@ function generate_password($password) {
   return $token;
 }
 
+function generate_file_id($email_address) {
+  $time = time();
+  $token = hash('ripemd128', "$time$email_address");
+  return $token;
+}
+
 function get_user_email_cookie() {
   $email_address = "";
   if (isset($_COOKIE['email_address']))
@@ -133,31 +139,5 @@ function insert_new_verify_string($connection, $email_address) {
       array_push($orders, $new_array);
     }
     return $orders;
-  }
-
-  function inc_file_count() {
-    mod_file_count(true);
-  }
-
-  function dec_file_count() {
-    mod_file_count(false);
-  }
-
-  function mod_file_count($inc) {
-    $fh = fopen("count.txt", 'r+') or die("File does not exist or you lack 
-      permission to open it");
-    $line = fgets($fh);
-    if (flock($fh, LOCK_EX)) {
-      $count = intval($line);
-      if ($inc)
-        $file_count = $count + 1;
-      else
-        $file_count = $count - 1;
-      fseek($fh, 0);
-      fwrite($fh, $file_count) or die("Could not write to file");
-      flock($fh, LOCK_UN);
-    }
-    fclose($fh);
-    return $file_count;
   }
 ?>

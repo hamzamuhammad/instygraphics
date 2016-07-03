@@ -1,5 +1,4 @@
 <?php //editorder.php reuses refresh code due to displaying a select option (along with cancel)
-    
     session_start();
   	if (!isset($_SESSION['email_address'])) { //session timed out
   		include 'timeout.php'; 
@@ -15,90 +14,99 @@
   	if ($connection->connect_error)
       die($connection->connect_error);
 
-    $file_name = "";
+    $old_file_id = "";
     $comments = "";
-    if (isset($_POST['file_name'])) {
-      $file_name = sanitizeMySQL($connection, $_POST['file_name']);
-      $comments = get_user_comments($connection, $file_name);
+    if (isset($_POST['file_id'])) {
+      $old_file_id = sanitizeMySQL($connection, $_POST['file_id']);
+      $comments = get_user_comments($connection, $old_file_id);
     }
 
     if (isset($_POST['update'])) { //user wants to update
-      $new_file_name = $_FILES['file']['name'];
       if (isset($_FILES['file'])) {
-        move_uploaded_file($_FILES['file']['tmp_name'], "uploads/$file_name");
-        update_order(true, $connection, $file_name, $new_file_name, $comments);      
+        //have to delete old file!
+        // if (file_exists("uploads/$file_id")) {
+        //   unlink(realpath("uploads/$file_id"));
+        // }
+        //deleted!
+        $new_file_name = $_FILES['file']['name'];
+        $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+        $new_file_id = generate_file_id($email_address) . '.' . $extension;
+        move_uploaded_file($_FILES['file']['tmp_name'], "uploads/$new_file_id");
+        //this is what SHOULD happen, updates file!
+        // $query = "UPDATE files SET old_file_name = '$new_file_name' WHERE file_id = '$old_file_id'";
+        // $result = $connection->query($query);
+        // if (!$result)
+        //   die($connection->error);
+
+        // $query = "UPDATE files SET comments = '$comments' WHERE file_id = '$old_file_id'";
+        // $result = $connection->query($query);
+        // if (!$result)
+        //   die($connection->error);
+        //
+
+        //lets try updating our comments now!
+        $comments = sanitizeMySQL($connection, $_POST['comments']);
+        update_order(true, $connection, $new_file_id, $old_file_id, $new_file_name, $comments);      
       }
       else
-        update_order(false, $connection, $file_name, $new_file_name, $comments);
-    }
-    else if (isset($_POST['delete'])) { //completely wipe the order
-      delete_order($connection, $file_name);
-      echo '<script type="text/javascript">
-            document.getElementById("update-btn").style.display = "none";
-            document.getElementById("delete-btn").style.display = "none";
-            </script>'
+        update_order(false, $connection, $new_file_id, $old_file_id, $new_file_name, $comments);
     }
 
     $connection->close();
   
-	  function get_user_comments($connection, $file_name) {
-      lock_table($connection);
-      $query = "SELECT * FROM files WHERE file_name = '$file_name'";
-      $connection->query($query);
+	  function get_user_comments($connection, $old_file_id) {
+      //lock_table($connection);
+      $query = "SELECT * FROM files WHERE file_id = '$old_file_id'";
+      $result = $connection->query($query);
       if (!$result) {
-        unlock_table($connection);
+        //unlock_table($connection);
         echo '<div class="alert alert-danger">Order doesn\'t exist!</div>';
         exit;
       }
       $row = $result->fetch_array(MYSQLI_NUM);
       $result->close();
       $comments = $row[4];
-      unlock_table($connection);
+      //unlock_table($connection);
       return $comments;
     }
 
-    function update_order($changed_file, $connection, $file_name, 
+    function update_order($changed_file, $connection, $new_file_id, $old_file_id, 
       $new_file_name, $comments) {
-      if ($changed_file)
-        update_file($connection, $file_name, $new_file_name);
-      update_comments($connection, $file_name, $comments)
+      if ($changed_file) {
+        update_file($connection, $new_file_id, $old_file_id, $new_file_name);
+        update_comments($connection, $new_file_id, $comments);
+      }
+      else
+        update_comments($connection, $old_file_id, $comments);
     }
 
-    function update_file($connection, $file_name, $new_file_name) {
-      lock_table($connection);
+    function update_file($connection, $new_file_id, $old_file_id, $new_file_name) {
+      $query = "UPDATE files SET file_id = '$new_file_id' WHERE file_id = 
+        '$old_file_id'";
+      $result = $connection->query($query);
+      if (!$result)
+        die($connection->error);
       $query = "UPDATE files SET old_file_name = '$new_file_name' WHERE 
-        file_name = '$file_name'";
+        file_id = '$new_file_id'";
       $result = $connection->query($query);
       if (!$result) {
-        unlock_table($connection);
+        //unlock_table($connection);
         die($connection->error);
       }
-      unlock_table($connection);
+      //unlock_table($connection);
     }
 
-    function update_comments($connection, $file_name, $comments) {
-      lock_table($connection);
+    function update_comments($connection, $file_id, $comments) {
+      //lock_table($connection);
       $query = "UPDATE files SET comments = '$comments' WHERE 
-        file_name = '$file_name'";
+        file_id = '$file_id'";
       $result = $connection->query($query);
       if (!$result) {
-        unlock_table($connection);
+        //unlock_table($connection);
         die($connection->error);
       }
-      unlock_table($connection);
+      //unlock_table($connection);
     }
-
-    function delete_order($connection, $file_name) {
-      lock_table($connection);
-      $query = "DELETE FROM files WHERE file_name = '$file_name'";
-      $result = $connection->query($query);
-      if (!$result) {
-        unlock_table($connection);
-        die($connection->error);
-      }
-      unlock_table($connection);
-    }
-
 ?>
 
 <html lang="en">
@@ -173,9 +181,12 @@
           </div>
         </div>
         <div id="status"></div>
-        <form action="neworder.php" method="POST" role="form" enctype="multipart/form-data" id="myForm" target="hidden_iframe">
+        <form action="editorder.php" method="POST" role="form" enctype="multipart/form-data" id="myForm" target="hidden_iframe">
           <div class="form-group">
             <input type="hidden" value="myForm" name="<?php echo ini_get("session.upload_progress.name"); ?>">
+          </div>
+          <div class="form-group">
+            <input type="hidden" value="<?php if ($old_file_id !== "") echo $old_file_id; ?>" name="file_id">
           </div>
           <div class="form-group">
             <div class="centercontents">
@@ -191,7 +202,6 @@
           <div class="centercontents">
             <div class="row">
               <a href="orders.php" class="btn btn-warning btn-md" role="button">Cancel</a>
-              <button type="submit" class="btn btn-danger" id="delete-btn" name="delete">Delete</button>
               <button type="submit" class="btn btn-success" id="update-btn" name="update">Update</button>
             </div>
           </div>
