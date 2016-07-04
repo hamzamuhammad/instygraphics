@@ -2,6 +2,8 @@ CURRENT BUGS:
 -unable to delete old user files when user updates their file
 -many mysql queries are not surrounded by locks
 -adminconsole does not have any sort of session expiration (weird bug)
+-apache2 seg faults when user tries to update order without uploading a file!
+-user gets error message when he tries to update settings w/o changing pass
 
 TO-DO LIST:
 -start regressive testing for all functions

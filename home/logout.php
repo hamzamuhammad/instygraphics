@@ -1,8 +1,11 @@
-<?php
-
-  include 'assets/helper.php';
-  $email_address = get_user_email_cookie();
+<?php //logout.php logs user out and sends them back to home page
+	
+	session_start();
+	$_SESSION = array();
+	setcookie(session_name(), '', time() - 2592000, '/');
+	session_destroy();
 ?>
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -11,22 +14,22 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
+    <link rel="icon" href="../img/favicon.ico">
 
     <title>Home</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="../css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/home.css" rel="stylesheet">
+    <link href="../css/home.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="js/ie-emulation-modes-warning.js"></script>
+    <script src="../js/ie-emulation-modes-warning.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -47,12 +50,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <div class="navbar-left"><img src="img/logo.png" width="50" height="50"></div>
-          <a class="navbar-brand" href="index.php">instygraphics</a>
+          <div class="navbar-left"><img src="../img/logo.png" width="50" height="50"></div>
+          <a class="navbar-brand" href="../index.php">instygraphics</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="../index.php">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
             <li><a href="#faq">FAQ</a></li>
@@ -61,7 +64,7 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Login <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li>     
-                   <form class="form" role="form" method="POST" action="console/authenticate.php" accept-charset="UTF-8" id="login-nav">
+                   <form class="form" role="form" method="POST" action="../console/authenticate.php" accept-charset="UTF-8" id="login-nav">
                     <div class="form-group">
                      <label class="sr-only" for="exampleInputEmail2">Email address</label>
                      <input type="email" class="form-control" id="emailAddress" placeholder="Email address" name="email_address" value="<?php if ($email_address !== "") echo $email_address; ?>" required>
@@ -70,9 +73,9 @@
                      <label class="sr-only" for="exampleInputPassword2">Password</label>
                      <input type="password" class="form-control" id="userPassword" placeholder="Password" name="user_password" required>
                      <div id="left">
-                       <div class="help-block text-left"><a href="home/recover.php">Forgot password?</a></div>
+                       <div class="help-block text-left"><a href="../home/recover.php">Forgot password?</a></div>
                      </div>
-                     <div class="help-block text-right"><a href="home/signup.php">Sign up</a></div>
+                     <div class="help-block text-right"><a href="../home/signup.php">Sign up</a></div>
                    </div>
                    <div class="form-group">
                      <button type="submit" class="btn btn-primary btn-block" name="submit">Sign in</button>
@@ -91,6 +94,8 @@
       </div>
     </nav>
 
+    <div class="alert alert-success">Successfully logged out!</div>
+
     <div class="container">
 
       <!-- Carousel
@@ -104,7 +109,7 @@
         </ol>
         <div class="carousel-inner" role="listbox">
           <div class="item active">
-            <img class="first-slide" src="img/code.jpg" alt="First slide">
+            <img class="first-slide" src="../img/code.jpg" alt="First slide">
             <div class="container">
               <div class="carousel-caption">
                 <a class="btn btn-lg btn-primary" href="#" role="button">Custom Website Creation</a>
@@ -112,7 +117,7 @@
             </div>
           </div>
           <div class="item">
-            <img class="second-slide" src="img/fullstack.jpg" alt="Second slide">
+            <img class="second-slide" src="../img/fullstack.jpg" alt="Second slide">
             <div class="container">
               <div class="carousel-caption">
                 <a class="btn btn-lg btn-primary" href="#" role="button">Full Stack Development</a>
@@ -120,7 +125,7 @@
             </div>
           </div>
           <div class="item">
-            <img class="third-slide" src="img/printing.jpg" alt="Third slide">
+            <img class="third-slide" src="../img/printing.jpg" alt="Third slide">
             <div class="container">
               <div class="carousel-caption">
                 <a class="btn btn-lg btn-primary" href="#" role="button">Print and Imaging</a>
@@ -204,9 +209,9 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')</script>
-    <script src="js/bootstrap.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../js/jquery.min.js"><\/script>')</script>
+    <script src="../js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
   </body>
 </html>
