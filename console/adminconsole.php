@@ -65,7 +65,7 @@
 
       <!-- Site footer -->
       <footer class="footer">
-        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="../bugs.php">Click here</a></p>
       </footer>
 
     </div> <!-- /container -->

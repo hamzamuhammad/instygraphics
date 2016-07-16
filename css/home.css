@@ -62,4 +62,8 @@ img {
   float: right;
 }
 
+#orderPlaced {
+  display: none;
+}
+
 

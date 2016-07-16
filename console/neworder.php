@@ -22,7 +22,7 @@
     $old_file_name = $_FILES['file']['name'];
     $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
     $file_id = generate_file_id($email_address) . '.' . $extension;
-    move_uploaded_file($_FILES['file']['tmp_name'], "../uploads/$file_id");
+    move_uploaded_file($_FILES['file']['tmp_name'], "../../uploads/$file_id");
     update_files_db($connection, $email_address, $file_id, $comments, 
       $old_file_name);
   }
@@ -145,7 +145,7 @@
       
       <!-- Site footer -->
       <footer class="footer">
-        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="../bugs.php">Click here</a></p>
       </footer>
 
     </div> <!-- /container -->

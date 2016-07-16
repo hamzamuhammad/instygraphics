@@ -31,7 +31,7 @@
         $new_file_name = $_FILES['file']['name'];
         $extension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
         $new_file_id = generate_file_id($email_address) . '.' . $extension;
-        move_uploaded_file($_FILES['file']['tmp_name'], "../uploads/$new_file_id");
+        move_uploaded_file($_FILES['file']['tmp_name'], "../../uploads/$new_file_id");
         //this is what SHOULD happen, updates file!
         // $query = "UPDATE files SET old_file_name = '$new_file_name' WHERE file_id = '$old_file_id'";
         // $result = $connection->query($query);
@@ -195,7 +195,7 @@
       
       <!-- Site footer -->
       <footer class="footer">
-        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="bugs.php">Click here</a></p>
+        <p>&copy; 2016 instygraphics. All rights reserved. | Designed by Hamza Muhammad | Version 0.9.0 | Bugs? <a href="../bugs.php">Click here</a></p>
       </footer>
 
     </div> <!-- /container -->
